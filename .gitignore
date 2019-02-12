@@ -1,0 +1,6 @@
+\venv/
+\__pycache__/
+
+cloud_sql_proxy
+set_env.sh
+.env.yaml
