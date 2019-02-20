@@ -4,3 +4,5 @@
 cloud_sql_proxy
 set_env.sh
 .env.yaml
+
+\.idea/

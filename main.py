@@ -1,19 +1,63 @@
+import datetime
+from collections import defaultdict
 from os import getenv
+
+from flask import jsonify
 
 from connect import pg_connection
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 
 
-def postgres_demo(request):
+def get_sensor_data(request):
+    # parse request data
+    sensor_ids = request.args.get("sensor_ids", 1)
+    minutes = request.args.get("minutes", 10)
+
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
     try:
         with conn.cursor() as cur:
-            query = "select * from guestbook"
+            query = f"SELECT * FROM sensor_data WHERE sensor_id IN ({sensor_ids}) ORDER BY created DESC LIMIT {minutes};"
             cur.execute(query)
             results = cur.fetchall()
-            return str(results)
+
+            # parse results into a better format for response
+            response_data = defaultdict(list)
+            for result in results:
+                date, sensor_id, temperature, moisture = result
+                date_string = datetime.datetime.strftime(date, "%Y-%m-%d %H:%M")
+                response_data[sensor_id].append((date_string, temperature, moisture))
+            response = {"message": "success", "data": response_data}
+        return jsonify(response), 200
+    except:  # TODO add more specific exceptions
+        response = {"message": "fail", "data": {}}
+        return jsonify(response), 418
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+
+def get_sensor_ids(request):
+    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
+
+    try:
+        with conn.cursor() as cur:
+            query = "SELECT DISTINCT sensor_id FROM sensor_data;"
+            cur.execute(query)
+            results = cur.fetchall()
+
+            # parse results and format response
+            id_list = []
+            for sensor_id in results:
+                # results of the distinct query are single tuples, e.g. (1,)
+                id_list.append(sensor_id[0])
+            response = {"message": "success", "sensor_ids": id_list}
+            return jsonify(response), 200
+    except:  # TODO add more specific exceptions
+        response = {"message": "fail", "sensor_ids": []}
+        return jsonify(response), 418
     finally:
         if conn:
             cur.close()
@@ -30,8 +74,8 @@ def insert_data(request):
         moisture = request_json.get("moisture", None)
 
     if None in [sensor_id, temperature, moisture]:
-        pass
-        # TODO should send back a 400 or something
+        # TODO send back a more useful message
+        return jsonify({"message": "fail"}), 400
 
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
@@ -41,14 +85,9 @@ def insert_data(request):
             cur.execute(insert)
             print(f"Inserting {sensor_id}, {temperature}, {moisture}")
         conn.commit()
-        # TODO should send back a 201
+        return jsonify({"message": "success"}), 201
     # TODO should handle failure on commit and send back appropriate status code
     finally:
         if conn:
             cur.close()
             conn.close()
-
-
-if __name__ == "__main__":
-    results = postgres_demo(None)
-    print(results)
