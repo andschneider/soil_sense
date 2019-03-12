@@ -18,6 +18,7 @@ def get_sensor_data(request):
 
     try:
         with conn.cursor() as cur:
+            # TODO make this actually date based, not just using LIMIT
             query = f"SELECT * FROM sensor_data WHERE sensor_id IN ({sensor_ids}) ORDER BY created DESC LIMIT {minutes};"
             cur.execute(query)
             results = cur.fetchall()
@@ -84,6 +85,34 @@ def insert_data(request):
             insert = f"INSERT INTO sensor_data (sensor_id, temperature, moisture) values ({sensor_id}, {temperature}, {moisture});"
             cur.execute(insert)
             print(f"Inserting {sensor_id}, {temperature}, {moisture}")
+        conn.commit()
+        return jsonify({"message": "success"}), 201
+    # TODO should handle failure on commit and send back appropriate status code
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+
+def insert_sensor_info(request):
+    # parse request data
+    request_json = request.get_json(silent=True)
+
+    if request_json:
+        sensor_id = request_json.get("sensor_id", None)
+        plant_name = request_json.get("plant", None)
+
+    if None in [sensor_id, plant_name]:
+        # TODO send back a more useful message
+        return jsonify({"message": "fail"}), 400
+
+    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
+
+    try:
+        with conn.cursor() as cur:
+            insert = "INSERT INTO sensor_info (sensor_id, plant) values (%s, %s);"
+            cur.execute(insert, (sensor_id, plant_name))
+            print(f"Inserting {sensor_id}, {plant_name}")
         conn.commit()
         return jsonify({"message": "success"}), 201
     # TODO should handle failure on commit and send back appropriate status code
