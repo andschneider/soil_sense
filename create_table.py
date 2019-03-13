@@ -29,7 +29,7 @@ def create_sensor_info_table():
     command = """CREATE TABLE sensor_info (
                     created timestamp DEFAULT current_timestamp,
                     updated timestamp,
-                    sensor_id integer NOT NULL, 
+                    sensor_id integer PRIMARY KEY, 
                     plant varchar(20) NOT NULL  
                  );"""
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")

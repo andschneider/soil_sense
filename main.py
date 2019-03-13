@@ -5,6 +5,8 @@ from os import getenv
 from flask import jsonify
 
 from connect import pg_connection
+from sensor_info import SensorInfo
+
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 
@@ -108,15 +110,54 @@ def insert_sensor_info(request):
 
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
-    try:
-        with conn.cursor() as cur:
-            insert = "INSERT INTO sensor_info (sensor_id, plant) values (%s, %s);"
-            cur.execute(insert, (sensor_id, plant_name))
-            print(f"Inserting {sensor_id}, {plant_name}")
-        conn.commit()
-        return jsonify({"message": "success"}), 201
-    # TODO should handle failure on commit and send back appropriate status code
-    finally:
-        if conn:
-            cur.close()
-            conn.close()
+    sensor = SensorInfo(conn, sensor_id, plant_name)
+    return sensor.post_data()
+
+
+def get_sensor_info(request):
+    # parse request data
+    sensor_id = request.args.get("sensor_id", None)
+
+    if sensor_id is None:
+        # TODO send back a more useful message
+        return jsonify({"message": "fail"}), 400
+
+    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
+
+    sensor = SensorInfo(conn, sensor_id, None)
+    return sensor.get_data()
+
+
+def update_sensor_info(request):
+    # parse request data
+    request_json = request.get_json(silent=True)
+
+    if request_json:
+        sensor_id = request_json.get("sensor_id", None)
+        plant_name = request_json.get("plant", None)
+
+    if None in [sensor_id, plant_name]:
+        # TODO send back a more useful message
+        return jsonify({"message": "fail"}), 400
+
+    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
+
+    sensor = SensorInfo(conn, sensor_id, plant_name)
+    return sensor.update_data()
+
+
+def delete_sensor_info(request):
+    # parse request data
+    request_json = request.get_json(silent=True)
+
+    if request_json:
+        sensor_id = request_json.get("sensor_id", None)
+
+    if sensor_id is None:
+        # TODO send back a more useful message
+        return jsonify({"message": "fail"}), 400
+
+    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
+
+    sensor = SensorInfo(conn, sensor_id, None)
+    return sensor.delete_data()
