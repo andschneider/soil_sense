@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import psycopg2
 from flask import jsonify
@@ -50,7 +51,8 @@ class SensorInfo:
                     "message": "success",
                     "data": {"sensor_id": sensor_id, "plant_name": plant_name},
                 }
-                return jsonify(response), 200
+                return json.dumps(response), 200, {"ContentType": "application/json"}
+                # return jsonify(response), 200
         except:  # TODO add more specific exceptions
             response = {"message": "fail", "data": {}}
             return jsonify(response), 503
