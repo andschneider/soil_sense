@@ -1,4 +1,3 @@
-import json
 from unittest.mock import Mock
 
 from main import get_sensor_info
@@ -10,7 +9,21 @@ def test_get_sensor_info():
     req = Mock(get_json=Mock(return_value=data), args=data)
 
     # call function and get return data
-    response, status, _ = get_sensor_info(req)
-    response = json.loads(response)
+    response = get_sensor_info(req)
+    message = response.get_json()
+    status = response.status_code
 
-    assert (response["data"]["sensor_id"], status) == (sensor_id, 200)
+    assert (message["data"]["sensor_id"], status) == (sensor_id, 200)
+
+
+def test_get_sensor_info_bad_input():
+    sensor_id = 99999
+    data = {"sensor_id": sensor_id}
+    req = Mock(get_json=Mock(return_value=data), args=data)
+
+    # call function and get return data
+    response = get_sensor_info(req)
+    message = response.get_json()
+    status = response.status_code
+
+    assert (message["message"], status) == ("fail", 503)

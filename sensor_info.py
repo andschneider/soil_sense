@@ -2,7 +2,7 @@ import datetime
 import json
 
 import psycopg2
-from flask import jsonify
+from flask import jsonify, Response
 
 
 class SensorInfo:
@@ -51,11 +51,16 @@ class SensorInfo:
                     "message": "success",
                     "data": {"sensor_id": sensor_id, "plant_name": plant_name},
                 }
-                return json.dumps(response), 200, {"ContentType": "application/json"}
-                # return jsonify(response), 200
+                return Response(
+                    response=json.dumps(response),
+                    status=200,
+                    mimetype="application/json",
+                )
         except:  # TODO add more specific exceptions
             response = {"message": "fail", "data": {}}
-            return jsonify(response), 503
+            return Response(
+                response=json.dumps(response), status=503, mimetype="application/json"
+            )
         finally:
             if self.pg_con:
                 cur.close()
