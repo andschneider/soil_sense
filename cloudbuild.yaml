@@ -1,0 +1,9 @@
+steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'sensor_info']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'get_sensor_data']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'get_sensor_ids']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'insert_data']
