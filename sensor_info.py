@@ -2,7 +2,7 @@ import datetime
 import json
 
 import psycopg2
-from flask import jsonify, Response
+from flask import Response
 
 
 class SensorInfo:
@@ -18,19 +18,24 @@ class SensorInfo:
                 cur.execute(insert, (self.sensor_id, self.plant_name))
                 print(f"Inserting {self.sensor_id}, {self.plant_name}")
             self.pg_con.commit()
-            return jsonify({"message": "success"}), 201
+
+            response = {"message": "success"}
+            return Response(
+                response=json.dumps(response), status=201, mimetype="application/json"
+            )
         except psycopg2.IntegrityError as e:
-            return (
-                jsonify(
-                    {
-                        "message": f"sensor id {self.sensor_id} already exists in database. Try updating or deleting first."
-                    }
-                ),
-                409,
+            response = {
+                "message": f"sensor id {self.sensor_id} already exists in database. Try updating or deleting first."
+            }
+            return Response(
+                response=json.dumps(response), status=409, mimetype="application/json"
             )
         except:
             # TODO add a more descriptive exception and a better response message
-            return jsonify({"message": "fail"}), 503
+            response = {"message": "fail"}
+            return Response(
+                response=json.dumps(response), status=503, mimetype="application/json"
+            )
         finally:
             if self.pg_con:
                 cur.close()
@@ -74,15 +79,16 @@ class SensorInfo:
                 update = "UPDATE sensor_info SET plant = %s, updated = %s WHERE sensor_id = %s;"
                 cur.execute(update, (self.plant_name, now, self.sensor_id))
             self.pg_con.commit()
-            return (
-                jsonify(
-                    {"message": f"Sensor id {self.sensor_id} successfully updated"}
-                ),
-                200,
+            response = {"message": f"Sensor id {self.sensor_id} successfully updated"}
+            return Response(
+                response=json.dumps(response), status=200, mimetype="application/json"
             )
         except:
             # TODO add a more descriptive exception and a better response message
-            return jsonify({"message": "fail"}), 503
+            response = {"message": "fail"}
+            return Response(
+                response=json.dumps(response), status=503, mimetype="application/json"
+            )
         finally:
             if self.pg_con:
                 cur.close()
@@ -95,15 +101,17 @@ class SensorInfo:
                 update = "DELETE FROM sensor_info WHERE sensor_id = %s;"
                 cur.execute(update, (self.sensor_id,))
             self.pg_con.commit()
-            return (
-                jsonify(
-                    {"message": f"Sensor id {self.sensor_id} successfully deleted"}
-                ),
-                200,
+
+            response = {"message": f"Sensor id {self.sensor_id} successfully deleted"}
+            return Response(
+                response=json.dumps(response), status=200, mimetype="application/json"
             )
         except:
             # TODO add a more descriptive exception and a better response message
-            return jsonify({"message": "fail"}), 503
+            response = {"message": "fail"}
+            return Response(
+                response=json.dumps(response), status=503, mimetype="application/json"
+            )
         finally:
             if self.pg_con:
                 cur.close()

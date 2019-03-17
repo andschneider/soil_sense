@@ -1,8 +1,9 @@
 import datetime
+import json
 from collections import defaultdict
 from os import getenv
 
-from flask import jsonify
+from flask import Response
 
 from connect import pg_connection
 from sensor_info import SensorInfo
@@ -32,10 +33,14 @@ def get_sensor_data(request):
                 date_string = datetime.datetime.strftime(date, "%Y-%m-%d %H:%M")
                 response_data[sensor_id].append((date_string, temperature, moisture))
             response = {"message": "success", "data": response_data}
-        return jsonify(response), 200
+        return Response(
+            response=json.dumps(response), status=200, mimetype="application/json"
+        )
     except:  # TODO add more specific exceptions
         response = {"message": "fail", "data": {}}
-        return jsonify(response), 418
+        return Response(
+            response=json.dumps(response), status=418, mimetype="application/json"
+        )
     finally:
         if conn:
             cur.close()
@@ -57,10 +62,14 @@ def get_sensor_ids(request):
                 # results of the distinct query are single tuples, e.g. (1,)
                 id_list.append(sensor_id[0])
             response = {"message": "success", "sensor_ids": id_list}
-            return jsonify(response), 200
+            return Response(
+                response=json.dumps(response), status=200, mimetype="application/json"
+            )
     except:  # TODO add more specific exceptions
         response = {"message": "fail", "sensor_ids": []}
-        return jsonify(response), 418
+        return Response(
+            response=json.dumps(response), status=418, mimetype="application/json"
+        )
     finally:
         if conn:
             cur.close()
@@ -78,7 +87,10 @@ def insert_data(request):
 
     if None in [sensor_id, temperature, moisture]:
         # TODO send back a more useful message
-        return jsonify({"message": "fail"}), 400
+        response = {"message": "fail"}
+        return Response(
+            response=json.dumps(response), status=400, mimetype="application/json"
+        )
 
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
@@ -88,7 +100,10 @@ def insert_data(request):
             cur.execute(insert)
             print(f"Inserting {sensor_id}, {temperature}, {moisture}")
         conn.commit()
-        return jsonify({"message": "success"}), 201
+        response = {"message": "success"}
+        return Response(
+            response=json.dumps(response), status=201, mimetype="application/json"
+        )
     # TODO should handle failure on commit and send back appropriate status code
     finally:
         if conn:
@@ -106,7 +121,10 @@ def insert_sensor_info(request):
 
     if None in [sensor_id, plant_name]:
         # TODO send back a more useful message
-        return jsonify({"message": "fail"}), 400
+        response = {"message": "fail"}
+        return Response(
+            response=json.dumps(response), status=400, mimetype="application/json"
+        )
 
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
@@ -120,7 +138,10 @@ def get_sensor_info(request):
 
     if sensor_id is None:
         # TODO send back a more useful message
-        return jsonify({"message": "fail"}), 400
+        response = {"message": "fail"}
+        return Response(
+            response=json.dumps(response), status=400, mimetype="application/json"
+        )
 
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
@@ -138,7 +159,10 @@ def update_sensor_info(request):
 
     if None in [sensor_id, plant_name]:
         # TODO send back a more useful message
-        return jsonify({"message": "fail"}), 400
+        response = {"message": "fail"}
+        return Response(
+            response=json.dumps(response), status=400, mimetype="application/json"
+        )
 
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
@@ -155,7 +179,10 @@ def delete_sensor_info(request):
 
     if sensor_id is None:
         # TODO send back a more useful message
-        return jsonify({"message": "fail"}), 400
+        response = {"message": "fail"}
+        return Response(
+            response=json.dumps(response), status=400, mimetype="application/json"
+        )
 
     conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
 
