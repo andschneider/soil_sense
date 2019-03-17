@@ -1,12 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
-from main import (
-    insert_sensor_info,
-    get_sensor_info,
-    update_sensor_info,
-    delete_sensor_info,
-)
+from main import sensor_info
 
 
 class TestSensorInfo:
@@ -16,9 +11,10 @@ class TestSensorInfo:
     def test_post_sensor_info(self):
         data = {"sensor_id": self.sensor_id, "plant": self.plant_name}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "POST"
 
         # call function and get return data
-        response = insert_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -27,9 +23,10 @@ class TestSensorInfo:
     def test_post_sensor_duplicate_info(self):
         data = {"sensor_id": self.sensor_id, "plant": self.plant_name}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "POST"
 
         # call function and get return data
-        response = insert_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -42,9 +39,10 @@ class TestSensorInfo:
         # keys should be 'sensor_id' and 'plant'
         data = {"sensor": self.sensor_id, "plant_name": self.plant_name}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "POST"
 
         # call function and get return data
-        response = insert_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -53,9 +51,10 @@ class TestSensorInfo:
     def test_get_sensor_info(self):
         data = {"sensor_id": self.sensor_id}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "GET"
 
         # call function and get return data
-        response = get_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -65,9 +64,10 @@ class TestSensorInfo:
         sensor_id = 99999
         data = {"sensor_id": sensor_id}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "GET"
 
         # call function and get return data
-        response = get_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -77,9 +77,10 @@ class TestSensorInfo:
         # key should be 'sensor_id'
         data = {"sensor": self.sensor_id}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "GET"
 
         # call function and get return data
-        response = get_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -88,9 +89,10 @@ class TestSensorInfo:
     def test_update_sensor_info(self):
         data = {"sensor_id": self.sensor_id, "plant": "Snake"}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "PUT"
 
         # call function and get return data
-        response = update_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -103,9 +105,10 @@ class TestSensorInfo:
         # key should be 'sensor_id'
         data = {"sensor": self.sensor_id, "plant": self.plant_name}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "PUT"
 
         # call function and get return data
-        response = get_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -115,9 +118,10 @@ class TestSensorInfo:
     def test_delete_sensor_info(self):
         data = {"sensor_id": self.sensor_id}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "DELETE"
 
         # call function and get return data
-        response = delete_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 
@@ -130,9 +134,10 @@ class TestSensorInfo:
         # key should be 'sensor_id'
         data = {"sensor": self.sensor_id}
         req = Mock(get_json=Mock(return_value=data), args=data)
+        req.method = "DELETE"
 
         # call function and get return data
-        response = get_sensor_info(req)
+        response = sensor_info(req)
         message = response.get_json()
         status = response.status_code
 

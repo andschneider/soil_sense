@@ -111,80 +111,36 @@ def insert_data(request):
             conn.close()
 
 
-def insert_sensor_info(request):
-    # parse request data
-    request_json = request.get_json(silent=True)
-
-    if request_json:
-        sensor_id = request_json.get("sensor_id", None)
-        plant_name = request_json.get("plant", None)
-
-    if None in [sensor_id, plant_name]:
-        # TODO send back a more useful message
-        response = {"message": "fail"}
-        return Response(
-            response=json.dumps(response), status=400, mimetype="application/json"
-        )
-
-    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
-
-    sensor = SensorInfo(conn, sensor_id, plant_name)
-    return sensor.post_data()
-
-
-def get_sensor_info(request):
+def sensor_info(request):
     # parse request data
     sensor_id = request.args.get("sensor_id", None)
+    plant_name = request.args.get("plant", None)
+    sensor = SensorInfo(sensor_id, plant_name)
 
-    if sensor_id is None:
-        # TODO send back a more useful message
-        response = {"message": "fail"}
-        return Response(
-            response=json.dumps(response), status=400, mimetype="application/json"
-        )
+    if request.method == "POST":
+        if None in [sensor_id, plant_name]:
+            return bad_arguments_response()
+        return sensor.post_data()
 
-    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
+    elif request.method == "GET":
+        if sensor_id is None:
+            return bad_arguments_response()
+        return sensor.get_data()
 
-    sensor = SensorInfo(conn, sensor_id, None)
-    return sensor.get_data()
+    elif request.method == "PUT":
+        if None in [sensor_id, plant_name]:
+            return bad_arguments_response()
+        return sensor.update_data()
 
-
-def update_sensor_info(request):
-    # parse request data
-    request_json = request.get_json(silent=True)
-
-    if request_json:
-        sensor_id = request_json.get("sensor_id", None)
-        plant_name = request_json.get("plant", None)
-
-    if None in [sensor_id, plant_name]:
-        # TODO send back a more useful message
-        response = {"message": "fail"}
-        return Response(
-            response=json.dumps(response), status=400, mimetype="application/json"
-        )
-
-    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
-
-    sensor = SensorInfo(conn, sensor_id, plant_name)
-    return sensor.update_data()
+    elif request.method == "DELETE":
+        if sensor_id is None:
+            return bad_arguments_response()
+        return sensor.delete_data()
 
 
-def delete_sensor_info(request):
-    # parse request data
-    request_json = request.get_json(silent=True)
-
-    if request_json:
-        sensor_id = request_json.get("sensor_id", None)
-
-    if sensor_id is None:
-        # TODO send back a more useful message
-        response = {"message": "fail"}
-        return Response(
-            response=json.dumps(response), status=400, mimetype="application/json"
-        )
-
-    conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
-
-    sensor = SensorInfo(conn, sensor_id, None)
-    return sensor.delete_data()
+def bad_arguments_response():
+    # TODO send back a more useful message
+    response = {"message": "fail"}
+    return Response(
+        response=json.dumps(response), status=400, mimetype="application/json"
+    )

@@ -1,23 +1,28 @@
 import datetime
 import json
+from os import getenv
 
 import psycopg2
 from flask import Response
 
+from connect import pg_connection
+
+CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
+
 
 class SensorInfo:
-    def __init__(self, postgres_connection, sensor_id, plant_name):
-        self.pg_con = postgres_connection
+    def __init__(self, sensor_id, plant_name):
         self.sensor_id = sensor_id
         self.plant_name = plant_name
 
     def post_data(self):
+        postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
-            with self.pg_con.cursor() as cur:
+            with postgres_connection.cursor() as cur:
                 insert = "INSERT INTO Sensor_info (sensor_id, plant) values (%s, %s);"
                 cur.execute(insert, (self.sensor_id, self.plant_name))
                 print(f"Inserting {self.sensor_id}, {self.plant_name}")
-            self.pg_con.commit()
+            postgres_connection.commit()
 
             response = {"message": "success"}
             return Response(
@@ -31,19 +36,16 @@ class SensorInfo:
                 response=json.dumps(response), status=409, mimetype="application/json"
             )
         except:
-            # TODO add a more descriptive exception and a better response message
-            response = {"message": "fail"}
-            return Response(
-                response=json.dumps(response), status=503, mimetype="application/json"
-            )
+            return self.bad_db_response()
         finally:
-            if self.pg_con:
+            if postgres_connection:
                 cur.close()
-                self.pg_con.close()
+                postgres_connection.close()
 
     def get_data(self):
+        postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
-            with self.pg_con.cursor() as cur:
+            with postgres_connection.cursor() as cur:
                 query = "SELECT * FROM sensor_info WHERE sensor_id = %s;"
                 cur.execute(query, (self.sensor_id,))
                 results = cur.fetchone()
@@ -62,57 +64,56 @@ class SensorInfo:
                     mimetype="application/json",
                 )
         except:  # TODO add more specific exceptions
-            response = {"message": "fail", "data": {}}
-            return Response(
-                response=json.dumps(response), status=503, mimetype="application/json"
-            )
+            return self.bad_db_response()
         finally:
-            if self.pg_con:
+            if postgres_connection:
                 cur.close()
-                self.pg_con.close()
+                postgres_connection.close()
 
     def update_data(self):
+        postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         # TODO this seems to return 200 if updating a sensor that doesn't exist
         now = datetime.datetime.utcnow()
         try:
-            with self.pg_con.cursor() as cur:
+            with postgres_connection.cursor() as cur:
                 update = "UPDATE sensor_info SET plant = %s, updated = %s WHERE sensor_id = %s;"
                 cur.execute(update, (self.plant_name, now, self.sensor_id))
-            self.pg_con.commit()
+            postgres_connection.commit()
             response = {"message": f"Sensor id {self.sensor_id} successfully updated"}
             return Response(
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
         except:
-            # TODO add a more descriptive exception and a better response message
-            response = {"message": "fail"}
-            return Response(
-                response=json.dumps(response), status=503, mimetype="application/json"
-            )
+            return self.bad_db_response()
         finally:
-            if self.pg_con:
+            if postgres_connection:
                 cur.close()
-                self.pg_con.close()
+                postgres_connection.close()
 
     def delete_data(self):
+        postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         # TODO this seems to return 200 if deleting a sensor that doesn't exist
         try:
-            with self.pg_con.cursor() as cur:
+            with postgres_connection.cursor() as cur:
                 update = "DELETE FROM sensor_info WHERE sensor_id = %s;"
                 cur.execute(update, (self.sensor_id,))
-            self.pg_con.commit()
+            postgres_connection.commit()
 
             response = {"message": f"Sensor id {self.sensor_id} successfully deleted"}
             return Response(
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
         except:
-            # TODO add a more descriptive exception and a better response message
-            response = {"message": "fail"}
-            return Response(
-                response=json.dumps(response), status=503, mimetype="application/json"
-            )
+            return self.bad_db_response()
         finally:
-            if self.pg_con:
+            if postgres_connection:
                 cur.close()
-                self.pg_con.close()
+                postgres_connection.close()
+
+    @staticmethod
+    def bad_db_response():
+        # TODO pass in response as argument
+        response = {"message": "fail", "data": {}}
+        return Response(
+            response=json.dumps(response), status=503, mimetype="application/json"
+        )
