@@ -21,8 +21,7 @@ def get_sensor_data(request):
 
     try:
         with conn.cursor() as cur:
-            # TODO make this actually date based, not just using LIMIT
-            query = f"SELECT * FROM sensor_data WHERE sensor_id IN ({sensor_ids}) ORDER BY created DESC LIMIT {minutes};"
+            query = f"SELECT * FROM sensor_data WHERE sensor_id IN ({sensor_ids}) AND created > now() - interval '{minutes} minutes';"
             cur.execute(query)
             results = cur.fetchall()
 
