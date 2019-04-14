@@ -3,7 +3,7 @@ import json
 from os import getenv
 
 import psycopg2
-from flask import Response
+from flask import Response, request
 from flask_restful import Resource
 from flask_restful import reqparse
 
@@ -43,10 +43,11 @@ class SensorInfo(Resource):
 
     def post(self, sensor_id):
         # parse arguments
-        parser = reqparse.RequestParser()
-        parser.add_argument("plant", type=str, required=True)
-        args = parser.parse_args()
-        plant_name = args.get("plant")
+        plant_name = request.args.get("plant")
+        # parser = reqparse.RequestParser()
+        # parser.add_argument("plant", type=str, required=True)
+        # args = parser.parse_args()
+        # plant_name = args.get("plant")
 
         postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
@@ -76,10 +77,11 @@ class SensorInfo(Resource):
 
     def put(self, sensor_id):
         # parse arguments
-        parser = reqparse.RequestParser()
-        parser.add_argument("plant", type=str, required=True)
-        args = parser.parse_args()
-        plant_name = args.get("plant")
+        plant_name = request.args.get("plant")
+        # parser = reqparse.RequestParser()
+        # parser.add_argument("plant", type=str, required=True)
+        # args = parser.parse_args()
+        # plant_name = args.get("plant")
 
         postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         # TODO this seems to return 200 if updating a sensor that doesn't exist
