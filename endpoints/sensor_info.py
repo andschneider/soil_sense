@@ -5,7 +5,6 @@ from os import getenv
 import psycopg2
 from flask import Response, request
 from flask_restful import Resource
-from flask_restful import reqparse
 
 from utils.connect import pg_connection
 
