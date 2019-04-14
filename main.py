@@ -5,8 +5,8 @@ from os import getenv
 
 from flask import Response
 
-from connect import pg_connection
-from sensor_info import SensorInfo
+from utils.connect import pg_connection
+from endpoints.sensor_info import SensorInfo
 
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
