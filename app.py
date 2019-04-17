@@ -14,4 +14,4 @@ api.add_resource(SensorInfo, "/sensor_info/<int:sensor_id>")
 api.add_resource(SensorData, "/sensor_data")
 
 if __name__ == "__main__":
-    app.run(debug=True, port=3030)
+    app.run(host="0.0.0.0", port=3030)

@@ -9,3 +9,5 @@ set_env.sh
 .coverage
 
 \.idea/
+
+\.env\.list
