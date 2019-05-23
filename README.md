@@ -20,3 +20,10 @@ Currently the backend is GCP's managed Cloud SQL offering, running PostgreSQL. T
 ```bash
 $ docker run --network="host" --env-file ./.env.list -p 3030:3030 ss_api
 ```
+
+## Testing
+*Currently under construction.*
+Run them using:
+```bash
+$ python3 -m pytest tests/unit/test_sensor_info_new.py -vs
+```
