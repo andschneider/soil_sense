@@ -5,7 +5,7 @@ Flask API connected to a PostgreSQL backend
 
 
 ## General
-This is the API component of the IoT soil sensor. It will link the sensor to the database and the database to the front end. It started as a serverless learning experiment and has morphed into a Dockerized Flask api.
+This is the API component of the IoT soil sensor. It will link the sensor to the database and the database to the front end. It started as a serverless learning experiment and has morphed into a Dockerized Flask api. The serverless code can be found on the branch `serverless_iced`, or with the `serverless_1.0.0` tag.
 
 Currently the backend is GCP's managed Cloud SQL offering, running PostgreSQL. This is likely to change to a self-hosted Postgres instance.
 
