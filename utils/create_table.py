@@ -1,6 +1,6 @@
 from os import getenv
 
-from connect import pg_connection
+from utils.connect import pg_connection
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 
