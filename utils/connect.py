@@ -17,10 +17,8 @@ def pg_connection(host):
         pg_config["host"] = host
         pg_con = connect(**pg_config)
         print("connecting to the web")
-        return pg_con
     except OperationalError:
         pg_config["host"] = "localhost"
         pg_con = connect(**pg_config)
         print("connecting locally")
-        return pg_con
     return pg_con

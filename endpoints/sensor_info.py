@@ -4,7 +4,7 @@ from os import getenv
 
 import psycopg2
 from flask import Response, request
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 
 from utils.connect import pg_connection
 
@@ -33,8 +33,8 @@ class SensorInfo(Resource):
                     status=200,
                     mimetype="application/json",
                 )
-        except:  # TODO add more specific exceptions
-            return self.bad_db_response()
+        except Exception as e:
+            return self.bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
@@ -42,7 +42,8 @@ class SensorInfo(Resource):
 
     def post(self, sensor_id):
         # parse arguments
-        plant_name = request.args.get("plant")
+        json_data = request.get_json()
+        plant_name = json_data.get("plant")
         # parser = reqparse.RequestParser()
         # parser.add_argument("plant", type=str, required=True)
         # args = parser.parse_args()
@@ -51,7 +52,7 @@ class SensorInfo(Resource):
         postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
             with postgres_connection.cursor() as cur:
-                insert = "INSERT INTO Sensor_info (sensor_id, plant) values (%s, %s);"
+                insert = "INSERT INTO sensor_info (sensor_id, plant) values (%s, %s);"
                 cur.execute(insert, (sensor_id, plant_name))
                 print(f"Inserting {sensor_id}, {plant_name}")
             postgres_connection.commit()
@@ -60,15 +61,15 @@ class SensorInfo(Resource):
             return Response(
                 response=json.dumps(response), status=201, mimetype="application/json"
             )
-        except psycopg2.IntegrityError as e:
+        except psycopg2.errors.UniqueViolation:
             response = {
-                "message": f"sensor id {self.sensor_id} already exists in database. Try updating or deleting first."
+                "message": f"Sensor id {sensor_id} already exists in database. Try updating or deleting first."
             }
             return Response(
                 response=json.dumps(response), status=409, mimetype="application/json"
             )
-        except:
-            return self.bad_db_response()
+        except Exception as e:
+            return self.bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
@@ -76,7 +77,8 @@ class SensorInfo(Resource):
 
     def put(self, sensor_id):
         # parse arguments
-        plant_name = request.args.get("plant")
+        json_data = request.get_json()
+        plant_name = json_data.get("plant")
         # parser = reqparse.RequestParser()
         # parser.add_argument("plant", type=str, required=True)
         # args = parser.parse_args()
@@ -94,8 +96,8 @@ class SensorInfo(Resource):
             return Response(
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
-        except:
-            return self.bad_db_response()
+        except Exception as e:
+            return self.bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
@@ -114,17 +116,17 @@ class SensorInfo(Resource):
             return Response(
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
-        except:
-            return self.bad_db_response()
+        except Exception as e:
+            return self.bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
                 postgres_connection.close()
 
     @staticmethod
-    def bad_db_response():
-        # TODO pass in response as argument
-        response = {"message": "fail", "data": {}}
+    def bad_db_response(exception):
+        """Catch all exception return response."""
+        response = {"message": "fail", "data": {"exception": exception}}
         return Response(
             response=json.dumps(response), status=503, mimetype="application/json"
         )

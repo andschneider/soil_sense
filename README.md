@@ -16,14 +16,18 @@ Currently the backend is GCP's managed Cloud SQL offering, running PostgreSQL. T
 
 ## Running Locally
 1) Start the Cloud SQL proxy.
-2) Run the api container:
-```bash
-$ docker run --network="host" --env-file ./.env.list -p 3030:3030 ss_api
-```
+2) Build the Dockerfile
+    ```bash
+    $ docker build -t ss_api .
+    ```
+3) Run the api container:
+    ```bash
+    $ docker run --network="host" --env-file ./.env.list -p 3030:3030 ss_api
+    ```
 
 ## Testing
 *Currently under construction.*
 Run them using:
 ```bash
-$ python3 -m pytest tests/unit/test_sensor_info_new.py -vs
+$ python3 -m pytest --cov=endpoints tests/unit -vs
 ```
