@@ -5,6 +5,7 @@ from flask import Response
 from flask_restful import Resource
 
 from utils.connect import pg_connection
+from utils.db_execptions import bad_db_response
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 
@@ -27,11 +28,8 @@ class SensorIds(Resource):
                     status=200,
                     mimetype="application/json",
                 )
-        except:  # TODO add more specific exceptions
-            response = {"message": "fail", "sensor_ids": []}
-            return Response(
-                response=json.dumps(response), status=418, mimetype="application/json"
-            )
+        except Exception as e:
+            return bad_db_response(e.args)
         finally:
             if conn:
                 cur.close()
