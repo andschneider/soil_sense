@@ -7,6 +7,7 @@ from flask import Response, request
 from flask_restful import Resource, reqparse
 
 from utils.connect import pg_connection
+from utils.db_execptions import bad_db_response
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 
@@ -34,7 +35,7 @@ class SensorInfo(Resource):
                     mimetype="application/json",
                 )
         except Exception as e:
-            return self.bad_db_response(e.args)
+            return bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
@@ -44,10 +45,6 @@ class SensorInfo(Resource):
         # parse arguments
         json_data = request.get_json()
         plant_name = json_data.get("plant")
-        # parser = reqparse.RequestParser()
-        # parser.add_argument("plant", type=str, required=True)
-        # args = parser.parse_args()
-        # plant_name = args.get("plant")
 
         postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
@@ -69,7 +66,7 @@ class SensorInfo(Resource):
                 response=json.dumps(response), status=409, mimetype="application/json"
             )
         except Exception as e:
-            return self.bad_db_response(e.args)
+            return bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
@@ -79,10 +76,6 @@ class SensorInfo(Resource):
         # parse arguments
         json_data = request.get_json()
         plant_name = json_data.get("plant")
-        # parser = reqparse.RequestParser()
-        # parser.add_argument("plant", type=str, required=True)
-        # args = parser.parse_args()
-        # plant_name = args.get("plant")
 
         postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         # TODO this seems to return 200 if updating a sensor that doesn't exist
@@ -97,7 +90,7 @@ class SensorInfo(Resource):
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
         except Exception as e:
-            return self.bad_db_response(e.args)
+            return bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
@@ -117,16 +110,8 @@ class SensorInfo(Resource):
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
         except Exception as e:
-            return self.bad_db_response(e.args)
+            return bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
                 postgres_connection.close()
-
-    @staticmethod
-    def bad_db_response(exception):
-        """Catch all exception return response."""
-        response = {"message": "fail", "data": {"exception": exception}}
-        return Response(
-            response=json.dumps(response), status=503, mimetype="application/json"
-        )

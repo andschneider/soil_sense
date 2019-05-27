@@ -7,6 +7,7 @@ from flask import Response, request
 from flask_restful import Resource
 
 from utils.connect import pg_connection
+from utils.db_execptions import bad_db_response
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 
@@ -14,8 +15,9 @@ CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 class SensorData(Resource):
     def get(self):
         # parse arguments
-        sensor_ids = request.args.get("sensor_ids")
-        minutes = request.args.get("minutes")
+        json_data = request.get_json()
+        sensor_ids = json_data.get("sensor_ids")
+        minutes = json_data.get("minutes")
 
         postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
@@ -36,11 +38,8 @@ class SensorData(Resource):
             return Response(
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
-        except:  # TODO add more specific exceptions
-            response = {"message": "fail", "data": {}}
-            return Response(
-                response=json.dumps(response), status=418, mimetype="application/json"
-            )
+        except Exception as e:
+            return bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
@@ -48,15 +47,21 @@ class SensorData(Resource):
 
     def post(self):
         request_json = request.get_json(silent=True)
+        sensor_id = request_json.get("sensor_id", None)
+        temperature = request_json.get("temperature", None)
+        moisture = request_json.get("moisture", None)
 
-        if request_json:
-            sensor_id = request_json.get("sensor_id", None)
-            temperature = request_json.get("temperature", None)
-            moisture = request_json.get("moisture", None)
-
-        if None in [sensor_id, temperature, moisture]:
-            # TODO send back a more useful message
-            response = {"message": "fail"}
+        bad_params = [
+            param[0]
+            for param in [
+                ("sensor_id", sensor_id),
+                ("temperature", temperature),
+                ("moisture", moisture),
+            ]
+            if param[1] is None
+        ]
+        if bad_params:
+            response = {"message": f"{bad_params} were not supplied."}
             return Response(
                 response=json.dumps(response), status=400, mimetype="application/json"
             )
@@ -72,16 +77,9 @@ class SensorData(Resource):
             return Response(
                 response=json.dumps(response), status=201, mimetype="application/json"
             )
-        # TODO should handle failure on commit and send back appropriate status code
+        except Exception as e:
+            return bad_db_response(e.args)
         finally:
             if postgres_connection:
                 cur.close()
                 postgres_connection.close()
-
-    @staticmethod
-    def bad_db_response():
-        # TODO pass in response as argument
-        response = {"message": "fail", "data": {}}
-        return Response(
-            response=json.dumps(response), status=503, mimetype="application/json"
-        )
