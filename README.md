@@ -13,8 +13,16 @@ Currently the backend is GCP's managed Cloud SQL offering, running PostgreSQL. T
 1) ~~Learn some serverless~~
 2) Learn more Docker
 3) Learn microservice architectures
+4) Learn Postgres
 
-## Running Locally
+## Running Locally with Docker Compose
+This is *wip* right now. The Postgres container only has fake data in it right now, among other things. 
+```bash
+$ docker-compose up
+```
+
+## Running Locally connected to CloudSQL
+This is for connecting to the real database, hosted using GCP CloudSQL.
 1) Start the Cloud SQL proxy.
 2) Build the Dockerfile
     ```bash
@@ -26,8 +34,7 @@ Currently the backend is GCP's managed Cloud SQL offering, running PostgreSQL. T
     ```
 
 ## Testing
-*Currently under construction.*
-Run them using:
+Run the tests using:
 ```bash
 $ python3 -m pytest --cov=endpoints tests/unit -vs
 ```

@@ -18,7 +18,8 @@ def pg_connection(host):
         pg_con = connect(**pg_config)
         print("connecting to the web")
     except OperationalError:
-        pg_config["host"] = "localhost"
+        # TODO this is a temporary solution for docker compose
+        pg_config["host"] = "db"  # "localhost"
         pg_con = connect(**pg_config)
         print("connecting locally")
     return pg_con
