@@ -36,7 +36,7 @@ class TestSensorData:
         """Test getting data back for a single sensor id."""
         data = {"sensor_ids": f"{self.sensor_id}", "minutes": 10}
 
-        response = client.get("/sensor_data", json=data)
+        response = client.get("/sensor_data", query_string=data)
         message = response.get_json()
         status = response.status_code
 
@@ -46,7 +46,7 @@ class TestSensorData:
         """Test getting data back for multiple sensor ids."""
         data = {"sensor_ids": f"1, {self.sensor_id}", "minutes": 10}
 
-        response = client.get("/sensor_data", json=data)
+        response = client.get("/sensor_data", query_string=data)
         message = response.get_json()
         status = response.status_code
 
@@ -56,7 +56,7 @@ class TestSensorData:
         """Test passing in bad arguments. Keys should be 'sensor_ids' and 'minutes'."""
         data = {"sensor_id": "1", "minut": 10}
 
-        response = client.get("/sensor_data", json=data)
+        response = client.get("/sensor_data", query_string=data)
         message = response.get_json()
         status = response.status_code
 

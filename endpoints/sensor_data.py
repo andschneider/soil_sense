@@ -15,9 +15,8 @@ CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 class SensorData(Resource):
     def get(self):
         # parse arguments
-        json_data = request.get_json()
-        sensor_ids = json_data.get("sensor_ids")
-        minutes = json_data.get("minutes")
+        sensor_ids = request.args.get("sensor_ids")
+        minutes = request.args.get("minutes")
 
         postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
