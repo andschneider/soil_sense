@@ -12,5 +12,5 @@ CREATE TABLE sensor_info (
                     plant varchar(20) NOT NULL
                  );
 
-COPY sensor_data(created,sensor_id,temperature,moisture) FROM '/test_data.csv' DELIMITER ',' CSV HEADER;
+COPY sensor_data(created,sensor_id,temperature,moisture) FROM '/modified_data.csv' DELIMITER ',' CSV HEADER;
 INSERT INTO sensor_info (sensor_id, plant) values (1, 'Monstera');
