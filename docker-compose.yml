@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - './endpoints:/usr/src/app/endpoints'
+      - ./endpoints:/app/endpoints
     ports:
       - 3030:3030
     environment:
@@ -20,6 +20,8 @@ services:
     build:
       context: ./db
       dockerfile: Dockerfile
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
