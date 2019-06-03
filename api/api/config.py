@@ -28,3 +28,11 @@ class ProductionConfig(Config):
     """Production configuration"""
 
     SQLALCHEMY_DATABASE_URI = getenv("DATABASE_URL")
+
+
+config = {
+    "development": DevelopmentConfig,
+    "testing": TestingConfig,
+    "production": ProductionConfig,
+    "default": DevelopmentConfig,
+}

@@ -1,6 +1,6 @@
 from sqlalchemy.sql import func
 
-from app import db
+from api import db
 
 
 class SensorData(db.Model):

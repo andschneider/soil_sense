@@ -38,6 +38,7 @@ class TestSensorInfo:
     def test_get_sensor_info(self, client):
         """Test getting sensor information for a given sensor id."""
         response = client.get(f"/sensor_info/{self.sensor_id}")
+        response = client.get(f"/sensor_info/1")
         message = response.get_json()
         status = response.status_code
 

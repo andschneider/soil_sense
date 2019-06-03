@@ -3,6 +3,7 @@ from os import getenv
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from .config import config
 
 db = SQLAlchemy()
 
@@ -10,13 +11,11 @@ db = SQLAlchemy()
 def create_app():
     app = Flask(__name__)
     app_settings = getenv("APP_SETTINGS")
-    app.config.from_object(app_settings)
+    app.config.from_object(config[app_settings])
 
     db.init_app(app)
 
-    # from .endpoints.sensor_data import SensorData
-    # from .endpoints.sensor_ids import SensorIds
-    from app.api.sensor_info import sensor_info_blueprint
+    from api.endpoints.sensor_info import sensor_info_blueprint
 
     url_prefix = "/api/v1"
     app.register_blueprint(sensor_info_blueprint, url_prefix=url_prefix)

@@ -4,7 +4,7 @@ from api import create_app, db
 
 # from api.models import SensorInfoModel
 
-app = create_app("development")
+app = create_app()
 cli = FlaskGroup(create_app=create_app)
 
 

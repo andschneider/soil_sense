@@ -1,14 +1,12 @@
 import datetime
 import json
-from os import getenv
 
 import psycopg2
 from flask import Response, request, Blueprint
 from flask_restful import Resource, Api
 
-# from app import db
-from app.api.models import SensorInfoModel
-from app.api.db_execptions import bad_db_response
+from api.core.db_execptions import bad_db_response
+from api.core.models import SensorInfoModel
 
 sensor_info_blueprint = Blueprint("sensor_info", __name__)
 api = Api(sensor_info_blueprint)
@@ -18,7 +16,6 @@ class SensorInfo(Resource):
     def get(self, sensor_id):
         try:
             sensor_info = SensorInfoModel.query.filter_by(sensor_id=sensor_id).first()
-            print(sensor_info)
             response = {
                 "message": "success",
                 "data": {

@@ -34,7 +34,7 @@ This is for connecting to the real database, hosted using GCP CloudSQL.
     ```
 
 ## Testing
-Run the tests using:
+From the `api` directory:
 ```bash
-$ python3 -m pytest --cov=endpoints tests/unit -vs
+$ python3 -m pytest --cov=api tests/unit -vs
 ```
