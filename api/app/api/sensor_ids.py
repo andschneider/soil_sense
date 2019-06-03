@@ -4,8 +4,8 @@ from os import getenv
 from flask import Response
 from flask_restful import Resource
 
-from utils.connect import pg_connection
-from utils.db_execptions import bad_db_response
+from api.utils import pg_connection
+from api.utils import bad_db_response
 
 CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
 
