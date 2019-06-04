@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from api import db
 
 
-class SensorData(db.Model):
+class SensorDataModel(db.Model):
 
     __tablename__ = "sensor_data"
 

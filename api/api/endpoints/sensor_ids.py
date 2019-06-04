@@ -1,36 +1,31 @@
 import json
-from os import getenv
 
-from flask import Response
-from flask_restful import Resource
+from flask import Response, Blueprint
+from flask_restful import Resource, Api
 
-from api.utils import pg_connection
-from api.utils import bad_db_response
+from api import db
+from api.core.db_execptions import bad_db_response
+from api.core.models import SensorDataModel
 
-CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
+
+sensor_ids_blueprint = Blueprint("sensor_ids", __name__)
+api = Api(sensor_ids_blueprint)
 
 
 class SensorIds(Resource):
     def get(self):
-        conn = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
-
+        """Gets the unique sensor id's."""
         try:
-            with conn.cursor() as cur:
-                query = "SELECT DISTINCT sensor_id FROM sensor_data;"
-                cur.execute(query)
-                results = cur.fetchall()
-
-                # results of the distinct query are single tuples, e.g. (1,)
-                id_list = [sensor_id[0] for sensor_id in results]
-                response = {"message": "success", "sensor_ids": id_list}
-                return Response(
-                    response=json.dumps(response),
-                    status=200,
-                    mimetype="application/json",
-                )
+            query = db.session.query(
+                SensorDataModel.sensor_id.distinct().label("sensor_id")
+            )
+            id_list = [row.sensor_id for row in query.all()]
+            response = {"message": "success", "sensor_ids": id_list}
+            return Response(
+                response=json.dumps(response), status=200, mimetype="application/json"
+            )
         except Exception as e:
             return bad_db_response(e.args)
-        finally:
-            if conn:
-                cur.close()
-                conn.close()
+
+
+api.add_resource(SensorIds, "/sensor_ids")
