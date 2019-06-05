@@ -1,15 +1,16 @@
-import datetime
+from datetime import datetime, timedelta
 import json
 from collections import defaultdict
-from os import getenv
 
-from flask import Response, request
-from flask_restful import Resource
+from flask import Response, request, Blueprint
+from flask_restful import Resource, Api
 
-from api.utils import pg_connection
-from api.utils import bad_db_response
+from api import db
+from api.core.db_execptions import bad_db_response
+from api.core.models import SensorDataModel
 
-CONNECTION_NAME = getenv("INSTANCE_CONNECTION_NAME")
+sensor_data_blueprint = Blueprint("sensor_data", __name__)
+api = Api(sensor_data_blueprint)
 
 
 class SensorData(Resource):
@@ -18,31 +19,31 @@ class SensorData(Resource):
         sensor_ids = request.args.get("sensor_ids")
         minutes = request.args.get("minutes")
 
-        postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
-        try:
-            with postgres_connection.cursor() as cur:
-                query = "SELECT * FROM sensor_data WHERE sensor_id IN %s AND created > now() - interval '%s minutes';"
-                cur.execute(query, (tuple(sensor_ids.split(",")), int(minutes)))
-                results = cur.fetchall()
+        now = datetime.utcnow()
+        filter_time = now - timedelta(minutes=int(minutes))
 
-                # parse results into a better format for response
-                response_data = defaultdict(list)
-                for result in results:
-                    date, sensor_id, temperature, moisture = result
-                    date_string = datetime.datetime.strftime(date, "%Y-%m-%d %H:%M")
-                    response_data[sensor_id].append(
-                        (date_string, temperature, moisture)
-                    )
-                response = {"message": "success", "data": response_data}
+        try:
+            # filter by id and minutes of data
+            query = SensorDataModel.query.filter(
+                SensorDataModel.sensor_id.in_(
+                    (sensor_id for sensor_id in sensor_ids.split(","))
+                ),
+                SensorDataModel.created > filter_time,
+            )
+
+            response_data = defaultdict(list)
+            for result in query.all():
+                date_string = datetime.strftime(result.created, "%Y-%m-%d %H:%M")
+                response_data[result.sensor_id].append(
+                    (date_string, result.temperature, result.moisture)
+                )
+
+            response = {"message": "success", "data": response_data}
             return Response(
                 response=json.dumps(response), status=200, mimetype="application/json"
             )
         except Exception as e:
             return bad_db_response(e.args)
-        finally:
-            if postgres_connection:
-                cur.close()
-                postgres_connection.close()
 
     def post(self):
         request_json = request.get_json(silent=True)
@@ -50,6 +51,7 @@ class SensorData(Resource):
         temperature = request_json.get("temperature", None)
         moisture = request_json.get("moisture", None)
 
+        # TODO replace this argument parsing with something legit
         bad_params = [
             param[0]
             for param in [
@@ -65,20 +67,18 @@ class SensorData(Resource):
                 response=json.dumps(response), status=400, mimetype="application/json"
             )
 
-        postgres_connection = pg_connection(f"/cloudsql/{CONNECTION_NAME}")
         try:
-            with postgres_connection.cursor() as cur:
-                insert = f"INSERT INTO sensor_data (sensor_id, temperature, moisture) values ({sensor_id},{temperature},{moisture});"
-                cur.execute(insert)
-                print(f"Inserting {sensor_id}, {temperature}, {moisture}")
-            postgres_connection.commit()
+            sensor_data = SensorDataModel(
+                sensor_id=sensor_id, temperature=temperature, moisture=moisture
+            )
+            db.session.add(sensor_data)
+            db.session.commit()
             response = {"message": "success"}
             return Response(
                 response=json.dumps(response), status=201, mimetype="application/json"
             )
         except Exception as e:
             return bad_db_response(e.args)
-        finally:
-            if postgres_connection:
-                cur.close()
-                postgres_connection.close()
+
+
+api.add_resource(SensorData, "/sensor_data")

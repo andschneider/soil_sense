@@ -7,8 +7,10 @@ class SensorDataModel(db.Model):
 
     __tablename__ = "sensor_data"
 
-    sensor_id = db.Column(db.Integer, primary_key=True)
-    created = db.Column(db.DateTime, default=func.now(), nullable=False)
+    sensor_id = db.Column(db.Integer, nullable=False)
+    created = db.Column(
+        db.DateTime, default=func.now(), nullable=False, primary_key=True
+    )
     temperature = db.Column(db.Float, nullable=False)
     moisture = db.Column(db.Integer, nullable=False)
 

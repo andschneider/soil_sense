@@ -17,12 +17,12 @@ def create_app():
 
     from api.endpoints.sensor_info import sensor_info_blueprint
     from api.endpoints.sensor_ids import sensor_ids_blueprint
+    from api.endpoints.sensor_data import sensor_data_blueprint
 
     url_prefix = "/api/v1"
     app.register_blueprint(sensor_info_blueprint, url_prefix=url_prefix)
     app.register_blueprint(sensor_ids_blueprint, url_prefix=url_prefix)
-    # api.add_resource(SensorInfo, "/sensor_info/<int:sensor_id>")
-    # api.add_resource(SensorData, "/sensor_data")
+    app.register_blueprint(sensor_data_blueprint, url_prefix=url_prefix)
 
     # shell context for flask cli
     @app.shell_context_processor
