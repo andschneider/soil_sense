@@ -3,7 +3,7 @@ import json
 from collections import defaultdict
 
 from flask import Response, request, Blueprint
-from flask_restplus import Api, Resource
+from flask_restplus import Api, Resource, reqparse
 
 from api import db
 from api.core.db_execptions import bad_db_response
@@ -17,19 +17,20 @@ api = Api(sensor_data_blueprint, doc="/docs/")
 @api.doc("get_data")
 class SensorData(Resource):
     def get(self):
+        """Get sensor readings for a list of sensor_ids and X amount of minutes."""
         # parse arguments
-        sensor_ids = request.args.get("sensor_ids")
-        minutes = request.args.get("minutes")
+        parser = reqparse.RequestParser()
+        parser.add_argument("sensor_ids", action="split", required=True)
+        parser.add_argument("minutes", type=int, required=True)
+        args = parser.parse_args()
 
         now = datetime.utcnow()
-        filter_time = now - timedelta(minutes=int(minutes))
+        filter_time = now - timedelta(minutes=args["minutes"])
 
         try:
             # filter by id and minutes of data
             query = SensorDataModel.query.filter(
-                SensorDataModel.sensor_id.in_(
-                    (sensor_id for sensor_id in sensor_ids.split(","))
-                ),
+                SensorDataModel.sensor_id.in_(args["sensor_ids"]),
                 SensorDataModel.created > filter_time,
             )
 
@@ -48,30 +49,18 @@ class SensorData(Resource):
             return bad_db_response(e.args)
 
     def post(self):
-        request_json = request.get_json(silent=True)
-        sensor_id = request_json.get("sensor_id", None)
-        temperature = request_json.get("temperature", None)
-        moisture = request_json.get("moisture", None)
-
-        # TODO replace this argument parsing with something legit
-        bad_params = [
-            param[0]
-            for param in [
-                ("sensor_id", sensor_id),
-                ("temperature", temperature),
-                ("moisture", moisture),
-            ]
-            if param[1] is None
-        ]
-        if bad_params:
-            response = {"message": f"{bad_params} were not supplied."}
-            return Response(
-                response=json.dumps(response), status=400, mimetype="application/json"
-            )
+        """Create a new record for a sensor reading."""
+        parser = reqparse.RequestParser()
+        parser.add_argument("sensor_id", type=int, required=True)
+        parser.add_argument("temperature", type=float, required=True)
+        parser.add_argument("moisture", type=int, required=True)
+        args = parser.parse_args()
 
         try:
             sensor_data = SensorDataModel(
-                sensor_id=sensor_id, temperature=temperature, moisture=moisture
+                sensor_id=args["sensor_id"],
+                temperature=args["temperature"],
+                moisture=args["moisture"],
             )
             db.session.add(sensor_data)
             db.session.commit()

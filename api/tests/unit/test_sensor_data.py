@@ -31,10 +31,7 @@ class TestSensorData:
         message = response.get_json()
         status = response.status_code
 
-        assert (message["message"], status) == (
-            "['sensor_id', 'temperature'] were not supplied.",
-            400,
-        )
+        assert (message["message"], status) == ("Input payload validation failed", 400)
 
     def test_get_sensor_data_single(self, client):
         """Test getting data back for a single sensor id."""
@@ -56,7 +53,6 @@ class TestSensorData:
 
         assert (message["message"], status) == ("success", 200)
 
-    @pytest.mark.skip(reason="Need to update endpoint for SQLAlchemy")
     def test_get_sensor_data_bad_arguments(self, client):
         """Test passing in bad arguments. Keys should be 'sensor_ids' and 'minutes'."""
         data = {"sensor_id": "1", "minut": 10}
@@ -65,4 +61,4 @@ class TestSensorData:
         message = response.get_json()
         status = response.status_code
 
-        assert (message["message"], status) == ("fail", 503)
+        assert (message["message"], status) == ("Input payload validation failed", 400)

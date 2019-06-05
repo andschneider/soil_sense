@@ -2,7 +2,7 @@ import datetime
 import json
 
 from flask import Response, request, Blueprint
-from flask_restplus import Api, Resource
+from flask_restplus import Api, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
 
 from api.core.db_execptions import bad_db_response
@@ -18,6 +18,7 @@ api = Api(sensor_info_blueprint, doc="/docs/")
 @api.route("/sensor_info/<int:sensor_id>")
 class SensorInfo(Resource):
     def get(self, sensor_id):
+        """Get sensor info for a given sensor_id."""
         try:
             sensor_info = SensorInfoModel.query.filter_by(sensor_id=sensor_id).first()
             response = {
@@ -34,18 +35,16 @@ class SensorInfo(Resource):
             return bad_db_response(e.args)
 
     def post(self, sensor_id):
-        # parse arguments
-        json_data = request.get_json()
-        plant_name = json_data.get("plant")
+        """Creates a new sensor info entry."""
+        parser = reqparse.RequestParser()
+        parser.add_argument("plant", type=str, required=True)
+        args = parser.parse_args()
 
         try:
-            sensor_info = SensorInfoModel(sensor_id=sensor_id, plant=plant_name)
+            sensor_info = SensorInfoModel(sensor_id=sensor_id, plant=args["plant"])
             db.session.add(sensor_info)
             db.session.commit()
             response = {"message": "success"}
-            return Response(
-                response=json.dumps(response), status=201, mimetype="application/json"
-            )
         except IntegrityError:
             response = {
                 "message": f"Sensor id {sensor_id} already exists in database. Try updating or deleting first."
@@ -56,17 +55,22 @@ class SensorInfo(Resource):
         except Exception as e:
             return bad_db_response(e.args)
 
+        return Response(
+            response=json.dumps(response), status=201, mimetype="application/json"
+        )
+
     def put(self, sensor_id):
-        # parse arguments
-        json_data = request.get_json()
-        plant_name = json_data.get("plant")
+        """Updates a sensor info entry."""
+        parser = reqparse.RequestParser()
+        parser.add_argument("plant", type=str, required=True)
+        args = parser.parse_args()
 
         now = datetime.datetime.utcnow()
         sensor_info = SensorInfoModel.query.filter_by(sensor_id=sensor_id).first()
 
         if sensor_info:
             try:
-                sensor_info.plant = plant_name
+                sensor_info.plant = args["plant"]
                 sensor_info.updated = now
                 db.session.commit()
 
@@ -81,6 +85,7 @@ class SensorInfo(Resource):
         # TODO handle updating entry that doesn't exist
 
     def delete(self, sensor_id):
+        """Deletes a sensor info entry."""
         # TODO need to handle deleting an entry that doesn't exist
         try:
             sensor_info = (

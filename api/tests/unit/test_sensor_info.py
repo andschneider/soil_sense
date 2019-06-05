@@ -31,7 +31,6 @@ class TestSensorInfo:
             409,
         )
 
-    @pytest.mark.skip(reason="Need to update endpoint for SQLAlchemy")
     def test_post_sensor_info_bad_arguments(self, client):
         """Test passing in bad data. Key should be 'plant' not 'plant_name'."""
         response = client.post(
@@ -41,7 +40,7 @@ class TestSensorInfo:
         message = response.get_json()
         status = response.status_code
 
-        assert (message["message"], status) == ("fail", 503)
+        assert (message["message"], status) == ("Input payload validation failed", 400)
 
     def test_get_sensor_info(self, client):
         """Test getting sensor information for a given sensor id."""
@@ -74,7 +73,6 @@ class TestSensorInfo:
             200,
         )
 
-    @pytest.mark.skip(reason="Need to update endpoint for SQLAlchemy")
     def test_update_sensor_info_bad_arguments(self, client):
         """Test passing in bad data. Key should be 'plant' not 'plant_name'."""
         response = client.put(
@@ -84,7 +82,7 @@ class TestSensorInfo:
         message = response.get_json()
         status = response.status_code
 
-        assert (message["message"], status) == ("fail", 503)
+        assert (message["message"], status) == ("Input payload validation failed", 400)
 
     # @pytest.mark.skip(reason="Would like to check data in db manually")
     def test_delete_sensor_info(self, client):
