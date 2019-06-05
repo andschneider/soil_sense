@@ -2,7 +2,7 @@ import datetime
 import json
 
 from flask import Response, request, Blueprint
-from flask_restful import Resource, Api
+from flask_restplus import Api, Resource
 from sqlalchemy.exc import IntegrityError
 
 from api.core.db_execptions import bad_db_response
@@ -12,9 +12,10 @@ from api import db
 
 
 sensor_info_blueprint = Blueprint("sensor_info", __name__)
-api = Api(sensor_info_blueprint)
+api = Api(sensor_info_blueprint, doc="/docs/")
 
 
+@api.route("/sensor_info/<int:sensor_id>")
 class SensorInfo(Resource):
     def get(self, sensor_id):
         try:
@@ -94,6 +95,3 @@ class SensorInfo(Resource):
             )
         except Exception as e:
             return bad_db_response(e.args)
-
-
-api.add_resource(SensorInfo, "/sensor_info/<int:sensor_id>")

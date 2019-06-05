@@ -3,16 +3,18 @@ import json
 from collections import defaultdict
 
 from flask import Response, request, Blueprint
-from flask_restful import Resource, Api
+from flask_restplus import Api, Resource
 
 from api import db
 from api.core.db_execptions import bad_db_response
 from api.core.models import SensorDataModel
 
 sensor_data_blueprint = Blueprint("sensor_data", __name__)
-api = Api(sensor_data_blueprint)
+api = Api(sensor_data_blueprint, doc="/docs/")
 
 
+@api.route("/sensor_data")
+@api.doc("get_data")
 class SensorData(Resource):
     def get(self):
         # parse arguments
@@ -79,6 +81,3 @@ class SensorData(Resource):
             )
         except Exception as e:
             return bad_db_response(e.args)
-
-
-api.add_resource(SensorData, "/sensor_data")
