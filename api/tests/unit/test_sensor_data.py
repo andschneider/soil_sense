@@ -1,6 +1,3 @@
-import pytest
-
-
 class TestSensorData:
     api_prefix = "/api/v1"
     sensor_id = 999

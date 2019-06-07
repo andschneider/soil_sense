@@ -1,10 +1,10 @@
-FROM python:3.7-alpine
+FROM python:3.7-slim
 
-RUN apk update && apk add \
-    gcc \
-    musl-dev \
-    postgresql-dev \
-    python3-dev
+#RUN apk update && apk add \
+#    gcc \
+#    musl-dev \
+#    postgresql-dev \
+#    python3-dev
 
 WORKDIR /app
 

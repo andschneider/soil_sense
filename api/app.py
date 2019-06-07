@@ -1,8 +1,7 @@
 from flask.cli import FlaskGroup
 
 from api import create_app, db
-
-# from api.models import SensorInfoModel
+from api.core.models import SensorInfoModel, UserModel
 
 app = create_app()
 cli = FlaskGroup(create_app=create_app)
@@ -12,6 +11,14 @@ cli = FlaskGroup(create_app=create_app)
 def recreate_db():
     db.drop_all()
     db.create_all()
+    db.session.commit()
+
+
+@cli.command("seed_db")
+def seed_db():
+    """Seeds the database."""
+    db.session.add(SensorInfoModel(sensor_id=1, plant="Monstera"))
+    db.session.add(UserModel(username="andrew", password="password"))
     db.session.commit()
 
 
