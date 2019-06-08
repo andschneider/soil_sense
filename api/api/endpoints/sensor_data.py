@@ -3,6 +3,7 @@ import json
 from collections import defaultdict
 
 from flask import Response, request, Blueprint
+from flask_jwt_extended import jwt_required
 from flask_restplus import Api, Resource, reqparse
 
 from api import db
@@ -16,6 +17,7 @@ api = Api(sensor_data_blueprint, doc="/docs/")
 @api.route("/sensor_data")
 @api.doc("get_data")
 class SensorData(Resource):
+    @jwt_required
     def get(self):
         """Get sensor readings for a list of sensor_ids and X amount of minutes."""
         # parse arguments
@@ -48,6 +50,7 @@ class SensorData(Resource):
         except Exception as e:
             return bad_db_response(e.args)
 
+    @jwt_required
     def post(self):
         """Create a new record for a sensor reading."""
         parser = reqparse.RequestParser()

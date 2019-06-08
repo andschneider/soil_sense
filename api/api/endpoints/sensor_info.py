@@ -2,6 +2,7 @@ import datetime
 import json
 
 from flask import Response, request, Blueprint
+from flask_jwt_extended import jwt_required
 from flask_restplus import Api, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
 
@@ -17,6 +18,7 @@ api = Api(sensor_info_blueprint, doc="/docs/")
 
 @api.route("/sensor_info/<int:sensor_id>")
 class SensorInfo(Resource):
+    @jwt_required
     def get(self, sensor_id):
         """Get sensor info for a given sensor_id."""
         try:
@@ -34,6 +36,7 @@ class SensorInfo(Resource):
         except Exception as e:
             return bad_db_response(e.args)
 
+    @jwt_required
     def post(self, sensor_id):
         """Creates a new sensor info entry."""
         parser = reqparse.RequestParser()
@@ -59,6 +62,7 @@ class SensorInfo(Resource):
             response=json.dumps(response), status=201, mimetype="application/json"
         )
 
+    @jwt_required
     def put(self, sensor_id):
         """Updates a sensor info entry."""
         parser = reqparse.RequestParser()
@@ -84,6 +88,7 @@ class SensorInfo(Resource):
                 return bad_db_response(e.args)
         # TODO handle updating entry that doesn't exist
 
+    @jwt_required
     def delete(self, sensor_id):
         """Deletes a sensor info entry."""
         # TODO need to handle deleting an entry that doesn't exist
