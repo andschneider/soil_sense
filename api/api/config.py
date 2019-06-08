@@ -3,6 +3,7 @@ from os import getenv
 
 class Config:
     SECRET_KEY = getenv("SECRET_KEY", "hard to guess string")
+    JWT_SECRET_KEY = getenv("SECRET_KEY", "super secret")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod

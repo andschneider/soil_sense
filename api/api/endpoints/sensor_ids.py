@@ -1,6 +1,7 @@
 import json
 
 from flask import Response, Blueprint
+from flask_jwt_extended import jwt_required
 from flask_restplus import Api, Resource
 
 from api import db
@@ -14,6 +15,7 @@ api = Api(sensor_ids_blueprint, doc="/docs/")
 
 @api.route("/sensor_ids")
 class SensorIds(Resource):
+    @jwt_required
     def get(self):
         """Gets the unique sensor id's."""
         try:

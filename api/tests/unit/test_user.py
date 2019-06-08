@@ -1,6 +1,3 @@
-import json
-
-
 class TestUser:
     api_prefix = "/api/v1"
     username = "andrew"
