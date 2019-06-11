@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ss-api
+  labels:
+    run: ss-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: ss-api
+    spec:
+      containers:
+      - name: ss-api
+        image: gcr.io/soil-sense/ss_api:latest
+        env:
+        - name: APP_SETTINGS
+          value: production
+        - name: FLASK_ENV
+          value: development
+        - name: DATABASE_PROD_URL
+          valueFrom:
+            secretKeyRef:
+              name: prod-url
+              key: produrl
+        ports:
+          - containerPort: 3030
+      restartPolicy: Always
