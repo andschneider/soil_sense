@@ -1,15 +1,18 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ss-api
   labels:
-    run: ss-api
+    app: ss-api
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: ss-api
   template:
     metadata:
       labels:
-        run: ss-api
+        app: ss-api
     spec:
       containers:
       - name: ss-api
