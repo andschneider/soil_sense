@@ -26,6 +26,7 @@ def create_app():
     from api.endpoints.sensor_data import sensor_data_blueprint
     from api.endpoints.user import users_blueprint
     from api.endpoints.auth import auth_blueprint
+    from api.endpoints.health import health_blueprint
 
     url_prefix = "/api/v1"
     app.register_blueprint(sensor_info_blueprint, url_prefix=url_prefix)
@@ -33,6 +34,7 @@ def create_app():
     app.register_blueprint(sensor_data_blueprint, url_prefix=url_prefix)
     app.register_blueprint(users_blueprint, url_prefix=url_prefix)
     app.register_blueprint(auth_blueprint, url_prefix=url_prefix)
+    app.register_blueprint(health_blueprint)
 
     # shell context for flask cli
     @app.shell_context_processor
