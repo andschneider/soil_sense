@@ -1,8 +1,18 @@
+import json
+
+from flask import Response
+
 from api_calls import SensorAPI
 
 
 def check_moisture(request):
     moisture_threshold = request.args.get("moisture")
+
+    if moisture_threshold is None:
+        response = {"message": "moisture value must be supplied"}
+        return Response(
+            response=json.dumps(response), status=400, mimetype="application/json"
+        )
 
     api = SensorAPI()
 
@@ -21,10 +31,13 @@ def check_moisture(request):
         if sensor_data_id:
             data = sensor_data_id[-1]
             moisture = data[-1]
-            if moisture < moisture_threshold:
+            if moisture < int(moisture_threshold):
                 # TODO send real alert
                 print(f"Sensor {sensor_id} needs some water!")
         else:
             print(f"Sensor {sensor_id} seems to be offline!")
 
-    return 200
+    response = {"message": "alert completed successfully"}
+    return Response(
+        response=json.dumps(response), status=200, mimetype="application/json"
+    )
