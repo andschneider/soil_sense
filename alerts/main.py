@@ -1,6 +1,8 @@
 import json
+import os
 
 from flask import Response
+from notifiers import get_notifier
 
 from api_calls import SensorAPI
 
@@ -15,6 +17,7 @@ def check_moisture(request):
         )
 
     api = SensorAPI()
+    slack = get_notifier("slack")
 
     # get available sensor ids
     status, sensor_ids = api.get_sensor_ids()
@@ -32,9 +35,25 @@ def check_moisture(request):
             data = sensor_data_id[-1]
             moisture = data[-1]
             if moisture < int(moisture_threshold):
-                # TODO send real alert
+                # TODO integrate notifier with logging and remove print statement
+                message = f"Sensor {sensor_id} needs some water!"
+                slack.notify(
+                    message="",
+                    webhook_url=os.getenv("SLACK_WEBHOOK"),
+                    attachments=[
+                        {"text": message, "color": "#005cf0", "fallback": message}
+                    ],
+                )
                 print(f"Sensor {sensor_id} needs some water!")
         else:
+            message = f"Sensor {sensor_id} seems to be offline!"
+            slack.notify(
+                message="",
+                webhook_url=os.getenv("SLACK_WEBHOOK"),
+                attachments=[
+                    {"text": message, "color": "#e80d1c", "fallback": message}
+                ],
+            )
             print(f"Sensor {sensor_id} seems to be offline!")
 
     response = {"message": "alert completed successfully"}
