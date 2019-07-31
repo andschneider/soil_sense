@@ -32,10 +32,12 @@ class SensorInfoModel(db.Model):
     created = db.Column(db.DateTime, default=func.now(), nullable=False)
     updated = db.Column(db.DateTime)
     plant = db.Column(db.String, default=True, nullable=False)
+    alert_level = db.Column(db.Integer, default=True, nullable=False)
 
-    def __init__(self, sensor_id, plant):
+    def __init__(self, sensor_id, plant, alert_level):
         self.sensor_id = sensor_id
         self.plant = plant
+        self.alert_level = alert_level
 
 
 class UserModel(db.Model):

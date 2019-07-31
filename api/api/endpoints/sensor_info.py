@@ -28,6 +28,7 @@ class SensorInfo(Resource):
                 "data": {
                     "sensor_id": sensor_info.sensor_id,
                     "plant_name": sensor_info.plant,
+                    "alert_level": sensor_info.alert_level,
                 },
             }
             return Response(
@@ -41,10 +42,15 @@ class SensorInfo(Resource):
         """Creates a new sensor info entry."""
         parser = reqparse.RequestParser()
         parser.add_argument("plant", type=str, required=True)
+        parser.add_argument("alert_level", type=int, required=True)
         args = parser.parse_args()
 
         try:
-            sensor_info = SensorInfoModel(sensor_id=sensor_id, plant=args["plant"])
+            sensor_info = SensorInfoModel(
+                sensor_id=sensor_id,
+                plant=args["plant"],
+                alert_level=args["alert_level"],
+            )
             db.session.add(sensor_info)
             db.session.commit()
             response = {"message": "success"}
@@ -66,7 +72,8 @@ class SensorInfo(Resource):
     def put(self, sensor_id):
         """Updates a sensor info entry."""
         parser = reqparse.RequestParser()
-        parser.add_argument("plant", type=str, required=True)
+        parser.add_argument("plant", type=str)
+        parser.add_argument("alert_level", type=str)
         args = parser.parse_args()
 
         now = datetime.datetime.utcnow()
@@ -74,7 +81,10 @@ class SensorInfo(Resource):
 
         if sensor_info:
             try:
-                sensor_info.plant = args["plant"]
+                if args["plant"]:
+                    sensor_info.plant = args["plant"]
+                if args["alert_level"]:
+                    sensor_info.alert_level = args["alert_level"]
                 sensor_info.updated = now
                 db.session.commit()
 
