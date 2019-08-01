@@ -73,8 +73,19 @@ class SensorInfo(Resource):
         """Updates a sensor info entry."""
         parser = reqparse.RequestParser()
         parser.add_argument("plant", type=str)
-        parser.add_argument("alert_level", type=str)
+        parser.add_argument("alert_level", type=int)
         args = parser.parse_args()
+
+        if not any(list(args.values())):
+            return Response(
+                response=json.dumps(
+                    {
+                        "message": "Both arguments are empty. Try checking your parameter names."
+                    }
+                ),
+                status=400,
+                mimetype="application/json",
+            )
 
         now = datetime.datetime.utcnow()
         sensor_info = SensorInfoModel.query.filter_by(sensor_id=sensor_id).first()

@@ -5,12 +5,13 @@ class TestSensorInfo:
     api_prefix = "/api/v1"
     sensor_id = 999
     plant_name = "Spider"
+    alert_level = 999
 
     def test_post_sensor_info(self, client, token):
         """Test creating a new sensor id entry."""
         response = client.post(
             self.api_prefix + f"/sensor_info/{self.sensor_id}",
-            json={"plant": self.plant_name},
+            json={"plant": self.plant_name, "alert_level": self.alert_level},
             headers={"Authorization": token},
         )
         message = response.get_json()
@@ -22,7 +23,7 @@ class TestSensorInfo:
         """Test creating a duplicate sensor id entry."""
         response = client.post(
             self.api_prefix + f"/sensor_info/{self.sensor_id}",
-            json={"plant": self.plant_name},
+            json={"plant": self.plant_name, "alert_level": self.alert_level},
             headers={"Authorization": token},
         )
         message = response.get_json()
@@ -84,7 +85,7 @@ class TestSensorInfo:
             200,
         )
 
-    def test_update_sensor_info_bad_arguments(self, client, token):
+    def test_update_sensor_info_bad_argument(self, client, token):
         """Test passing in bad data. Key should be 'plant' not 'plant_name'."""
         response = client.put(
             self.api_prefix + f"/sensor_info/{self.sensor_id}",
@@ -94,7 +95,25 @@ class TestSensorInfo:
         message = response.get_json()
         status = response.status_code
 
-        assert (message["message"], status) == ("Input payload validation failed", 400)
+        assert (message["message"], status) == (
+            "Both arguments are empty. Try checking your parameter names.",
+            400,
+        )
+
+    def test_update_sensor_info_bad_arguments(self, client, token):
+        """Test passing in bad data. Keys should be 'plant' not 'alert_level'."""
+        response = client.put(
+            self.api_prefix + f"/sensor_info/{self.sensor_id}",
+            json={"plant_name": self.plant_name, "alert": 500},
+            headers={"Authorization": token},
+        )
+        message = response.get_json()
+        status = response.status_code
+
+        assert (message["message"], status) == (
+            "Both arguments are empty. Try checking your parameter names.",
+            400,
+        )
 
     # @pytest.mark.skip(reason="Would like to check data in db manually")
     def test_delete_sensor_info(self, client, token):
