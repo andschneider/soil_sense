@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ss-front
+  labels:
+    run: ss-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: ss-front
+  template:
+    metadata:
+      labels:
+        run: ss-front
+    spec:
+      containers:
+      - image: gcr.io/soil-sense/ss_front:2.0.0
+        name: ss-front
+        ports:
+        - containerPort: 8050
+          protocol: TCP
