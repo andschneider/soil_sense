@@ -5,7 +5,7 @@ import requests
 
 class SensorAPI:
     def __init__(self):
-        self.base_url = os.getenv("API_URL", "http://localhost:3030")
+        self.base_url = os.getenv("API_URL", "http://api:3030")
         self.api_prefix = "/api/v1"
         self._token = self._authenticate()
 
