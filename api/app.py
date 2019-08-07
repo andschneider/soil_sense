@@ -1,4 +1,5 @@
 from flask.cli import FlaskGroup
+from sqlalchemy.exc import IntegrityError
 
 from api import create_app, db
 from api.core.models import SensorInfoModel, UserModel
@@ -17,9 +18,12 @@ def recreate_db():
 @cli.command("seed_db")
 def seed_db():
     """Seeds the database."""
-    db.session.add(SensorInfoModel(sensor_id=1, plant="Monstera", alert_level=500))
-    db.session.add(UserModel(username="andrew", password="password"))
-    db.session.commit()
+    try:
+        db.session.add(SensorInfoModel(sensor_id=1, plant="Monstera", alert_level=500))
+        db.session.add(UserModel(username="andrew", password="password"))
+        db.session.commit()
+    except IntegrityError:
+        print("Seed data already exists in db!")
 
 
 if __name__ == "__main__":

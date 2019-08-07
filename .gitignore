@@ -11,3 +11,5 @@ set_env.sh
 \.idea/
 
 \.env\.list
+
+\.vscode/
