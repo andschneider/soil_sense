@@ -1,18 +1,18 @@
 # ss alerts
 
-A simple Cloud Function to send alerts when a plant needs to be watered or the sensor needs to be restarted. 
+A simple Cloud Function to send alerts when a plant needs to be watered or the sensor needs to be restarted.
 
-### Architecture
+## Architecture
 
 Cloud Scheduler[0] and Cloud Functions[1] are being tied together to create the alert system.
 
-Cloud Scheduler is used as a cron job scheduler, which calls a HTTP Cloud Function at a set interval. The Cloud Function then takes care of pulling and checking data, and, if needed, sending alerts. 
+Cloud Scheduler is used as a cron job scheduler, which calls a HTTP Cloud Function at a set interval. The Cloud Function then takes care of pulling and checking data, and, if needed, sending alerts.
 
 The alerting is done by sending a message to a Slack channel. This is done using the wonderful Notifiers[2] Python library.
 
-The total cost of this is free! Cloud Scheduler is free for up to three jobs per account. Cloud Functions is free up to 2 million invocations. I have set up the alert for once a day, so I am well under the threshold. 
+The total cost of this is free! Cloud Scheduler is free for up to three jobs per account. Cloud Functions is free up to 2 million invocations. I have set up the alert for once a day, so I am well under the threshold.
 
-### Deployment
+## Deployment
 
 The `.env-blank.yaml` should be filled out with correct values and then renamed to `.env.yaml`.
 
@@ -26,7 +26,6 @@ These scripts assume the Google Cloud SDK[3] is installed on your system.
 1) Security
 
     The Cloud Function is unauthenticated at the moment. This is slightly mitigated by keeping the url for the Function secret, but this not a good long term solution.
-
 
 ---
 
