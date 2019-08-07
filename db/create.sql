@@ -20,7 +20,6 @@ CREATE TABLE users (
                 );
 
 COPY sensor_data(created,sensor_id,temperature,moisture) FROM '/modified_data.csv' DELIMITER ',' CSV HEADER;
-INSERT INTO sensor_info (sensor_id, plant, alert_level) values (1, 'Monstera', 500);
 
 -- delete data from the future
 DELETE FROM sensor_data WHERE created > now();

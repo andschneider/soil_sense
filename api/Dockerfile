@@ -1,10 +1,7 @@
 FROM python:3.7-slim
 
-#RUN apk update && apk add \
-#    gcc \
-#    musl-dev \
-#    postgresql-dev \
-#    python3-dev
+RUN apt-get update && apt-get install -y \
+    netcat-openbsd
 
 WORKDIR /app
 
@@ -15,4 +12,4 @@ RUN pip install -r requirements.txt
 COPY . /app
 
 EXPOSE 3030
-CMD ["flask", "run", "-h", "0.0.0.0", "-p", "3030"]
+CMD ["/app/entrypoint-test.sh"]

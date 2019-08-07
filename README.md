@@ -23,4 +23,12 @@ To run the application with some test data simply use Docker Compose:
 docker-compose up
 ```
 
-Once the containers are built and running, the front end can be viewed by going to `localhost:8050` in a browser.
+- Once the containers are built and running, the front end can be viewed by going to `localhost:8050` in a browser.
+
+- To run tests on the API and get coverage, run the following:
+
+    ```bash
+    docker-compose exec api python3 -m pytest --cov=api
+    ```
+
+- Swagger documentation for the api can be viewed by going to `localhost:3030/api/v1/docs`.
