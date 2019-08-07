@@ -1,12 +1,23 @@
 version: '3.7'
 
 services:
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - 8050:8050
+    environment:
+      - API_USERNAME=andrew
+      - API_PASSWORD=password
+    depends_on:
+      - db
+      - api
+
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-#    volumes:
-#      - ./endpoints:/app/endpoints
     ports:
       - 3030:3030
     environment:

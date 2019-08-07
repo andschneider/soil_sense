@@ -17,7 +17,7 @@ def recreate_db():
 @cli.command("seed_db")
 def seed_db():
     """Seeds the database."""
-    db.session.add(SensorInfoModel(sensor_id=1, plant="Monstera"))
+    db.session.add(SensorInfoModel(sensor_id=1, plant="Monstera", alert_level=500))
     db.session.add(UserModel(username="andrew", password="password"))
     db.session.commit()
 

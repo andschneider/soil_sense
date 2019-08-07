@@ -13,6 +13,7 @@ Flask-Bcrypt==0.7.1
 Flask-JWT-Extended==3.18.2
 flask-restplus==0.12.1
 Flask-SQLAlchemy==2.4.0
+gunicorn==19.9.0
 identify==1.4.1
 importlib-metadata==0.9
 itsdangerous==1.1.0
