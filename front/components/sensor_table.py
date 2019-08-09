@@ -8,7 +8,8 @@ def create_sensor_table():
     table = dash_table.DataTable(
         id="sensor-table",
         columns=[
-            {"name": i.replace("_", " "), "id": i} for i in ["sensor_id", "plant_name"]
+            {"name": i.replace("_", " "), "id": i}
+            for i in ["sensor_id", "plant_name", "alert_level"]
         ],
         data=dm.plant_names,
         is_focused=True,
@@ -23,5 +24,6 @@ def create_sensor_table():
         # ],
         editable=False,
         style_as_list_view=True,
+        fixed_columns={"headers": True, "data": 1},
     )
     return table

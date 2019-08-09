@@ -19,6 +19,18 @@ class Plot:
         self.figure.append_trace(temperature_trace, 2, 1)
         self.figure.append_trace(temperature_trace_rolled, 2, 1)
 
+    def add_alert_level(self, data, alert_level, sensor_id):
+        """Add a horizontal line at an alert level."""
+        trace = {
+            "x": [data["date"][0], data["date"].iloc[-1]],
+            "y": [alert_level, alert_level],
+            "name": f"{sensor_id} alert",
+            "mode": "lines",
+            "type": "scatter",
+            "line": dict(color="Red", width=1, dash="dash"),
+        }
+        self.figure.append_trace(trace, 1, 1)
+
     @staticmethod
     def _create_sub_plots():
         """Creates two blank plots, one for temperature and one for moisture sensor data. Actual data is added to plot later.

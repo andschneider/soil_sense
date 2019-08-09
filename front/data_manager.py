@@ -8,6 +8,7 @@ from api_calls import SensorAPI
 class DataManager:
     def __init__(self):
         self.sensor_api = SensorAPI()
+        self.alert_levels = {}
         self.sensor_ids = self.get_sensor_ids()
         self.plant_names = self.get_plant_names()
         self.sensor_data = {}
@@ -94,6 +95,7 @@ class DataManager:
     def _get_new_data(self, minutes, sensor_ids):
         data = self.sensor_api.get_sensor_data(minutes, sensor_ids)
         for sensor in sensor_ids:
+            # TODO handle when there is no data for the sensor
             sensor_data = pd.DataFrame(
                 data["data"][str(sensor)], columns=["date", "temp", "moisture"]
             )
@@ -113,5 +115,6 @@ class DataManager:
             if status == 200:
                 good_ids.append(s_id)
                 plants.append(data["data"])
+                self.alert_levels[int(s_id)] = data["data"]["alert_level"]
         self.sensor_ids = good_ids
         return plants
