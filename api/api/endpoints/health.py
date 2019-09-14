@@ -1,18 +1,18 @@
 import json
 
 from flask import Response, Blueprint
-from flask_restplus import Api, Resource
+from flask_restplus import Api, Namespace, Resource
 
 from api import db
 from api.core.db_execptions import bad_db_response
 from api.core.models import SensorDataModel
 
 
-health_blueprint = Blueprint("health", __name__)
-api = Api(health_blueprint, doc="/docs/")
+api = Namespace("health", description="Healthchecks.")
 
 
 @api.route("/health")
+@api.doc(security=None)
 class SensorIds(Resource):
     def get(self):
         """Simple health check endpoint"""

@@ -2,23 +2,26 @@ import json
 
 from flask import Blueprint, Response
 from flask_jwt_extended import create_access_token
-from flask_restplus import reqparse, Api, Resource
+from flask_restplus import reqparse, Api, Namespace, Resource
 
 from api import bcrypt
 from api.core.db_execptions import bad_db_response
 from api.core.models import UserModel
 
-auth_blueprint = Blueprint("auth", __name__)
-api = Api(auth_blueprint, doc="/docs/")
+
+api = Namespace("auth", description="Authentication and users.")
+
+parser = reqparse.RequestParser()
+parser.add_argument("username", type=str, required=True)
+parser.add_argument("password", type=str, required=True)
 
 
 @api.route("/auth")
+@api.doc(security=None)
+@api.expect(parser)
 class Auth(Resource):
     def post(self):
         """Create an authentication token."""
-        parser = reqparse.RequestParser()
-        parser.add_argument("username", type=str, required=True)
-        parser.add_argument("password", type=str, required=True)
         args = parser.parse_args()
 
         try:

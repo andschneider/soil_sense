@@ -4,27 +4,33 @@ from collections import defaultdict
 
 from flask import Response, request, Blueprint
 from flask_jwt_extended import jwt_required
-from flask_restplus import Api, Resource, reqparse
+from flask_restplus import Api, Namespace, Resource, reqparse
 
 from api import db
 from api.core.db_execptions import bad_db_response
 from api.core.models import SensorDataModel
 
-sensor_data_blueprint = Blueprint("sensor_data", __name__)
-api = Api(sensor_data_blueprint, doc="/docs/")
+
+api = Namespace("sensor_data", description="GET and POST for sensor readings.")
+
+get_args = reqparse.RequestParser()
+get_args.add_argument("sensor_ids", action="split", required=True)
+get_args.add_argument("minutes", type=int, required=True)
+
+post_args = reqparse.RequestParser()
+post_args.add_argument("sensor_id", type=int, required=True)
+post_args.add_argument("temperature", type=float, required=True)
+post_args.add_argument("moisture", type=int, required=True)
 
 
 @api.route("/sensor_data")
-@api.doc("get_data")
 class SensorData(Resource):
     @jwt_required
+    @api.expect(get_args)
     def get(self):
         """Get sensor readings for a list of sensor_ids and X amount of minutes."""
         # parse arguments
-        parser = reqparse.RequestParser()
-        parser.add_argument("sensor_ids", action="split", required=True)
-        parser.add_argument("minutes", type=int, required=True)
-        args = parser.parse_args()
+        args = get_args.parse_args()
 
         now = datetime.utcnow()
         filter_time = now - timedelta(minutes=args["minutes"])
@@ -51,13 +57,10 @@ class SensorData(Resource):
             return bad_db_response(e.args)
 
     @jwt_required
+    @api.expect(post_args)
     def post(self):
         """Create a new record for a sensor reading."""
-        parser = reqparse.RequestParser()
-        parser.add_argument("sensor_id", type=int, required=True)
-        parser.add_argument("temperature", type=float, required=True)
-        parser.add_argument("moisture", type=int, required=True)
-        args = parser.parse_args()
+        args = post_args.parse_args()
 
         try:
             sensor_data = SensorDataModel(

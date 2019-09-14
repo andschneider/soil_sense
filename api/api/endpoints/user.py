@@ -2,25 +2,26 @@ import json
 
 from flask import Response, Blueprint
 from flask_jwt_extended import jwt_required
-from flask_restplus import Api, Resource, reqparse
+from flask_restplus import Api, Namespace, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
 
 from api import db
 from api.core.db_execptions import bad_db_response
 from api.core.models import UserModel
 
-users_blueprint = Blueprint("users", __name__)
-api = Api(users_blueprint, doc="/docs/")
+api = Namespace("auth", description="Authentication and users.")
+
+parser = reqparse.RequestParser()
+parser.add_argument("username", type=str, required=True)
+parser.add_argument("password", type=str, required=True)
 
 
 @api.route("/users")
 class Users(Resource):
     @jwt_required
+    @api.expect(parser)
     def post(self):
         """Create a user."""
-        parser = reqparse.RequestParser()
-        parser.add_argument("username", type=str, required=True)
-        parser.add_argument("password", type=str, required=True)
         args = parser.parse_args()
 
         try:

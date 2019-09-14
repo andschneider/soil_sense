@@ -3,17 +3,25 @@ import json
 
 from flask import Response, request, Blueprint
 from flask_jwt_extended import jwt_required
-from flask_restplus import Api, Resource, reqparse
+from flask_restplus import Api, Namespace, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
 
 from api.core.db_execptions import bad_db_response
-from api.core.models import SensorInfoModel
+from api.core.models import SensorInfoModel, SensorDataModel
 
 from api import db
 
 
-sensor_info_blueprint = Blueprint("sensor_info", __name__)
-api = Api(sensor_info_blueprint, doc="/docs/")
+api = Namespace(
+    "sensor_info",
+    description="Sensor information: sensor id, plant name, and moisture alert level.",
+)
+
+post_args = reqparse.RequestParser()
+post_args.add_argument("plant", type=str, required=True, help="Plant name.")
+post_args.add_argument(
+    "alert_level", type=int, required=True, help="Alert level for moisture."
+)
 
 
 @api.route("/sensor_info/<int:sensor_id>")
@@ -38,12 +46,10 @@ class SensorInfo(Resource):
             return bad_db_response(e.args)
 
     @jwt_required
+    @api.expect(post_args)
     def post(self, sensor_id):
         """Creates a new sensor info entry."""
-        parser = reqparse.RequestParser()
-        parser.add_argument("plant", type=str, required=True)
-        parser.add_argument("alert_level", type=int, required=True)
-        args = parser.parse_args()
+        args = post_args.parse_args()
 
         try:
             sensor_info = SensorInfoModel(
@@ -69,8 +75,14 @@ class SensorInfo(Resource):
         )
 
     @jwt_required
+    @api.doc(
+        params={"plant": "Plant name.", "alert_level": "Alert level for moisture."}
+    )
     def put(self, sensor_id):
-        """Updates a sensor info entry."""
+        """Updates a sensor info entry.
+
+        One or both of 'plant' and 'alert_level' must be supplied.
+        """
         parser = reqparse.RequestParser()
         parser.add_argument("plant", type=str)
         parser.add_argument("alert_level", type=int)

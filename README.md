@@ -29,7 +29,7 @@ docker-compose up
     docker-compose exec api python3 -m pytest --cov=api
     ```
 
-- Swagger documentation for the API can be viewed by going to `localhost:3030/api/v1/docs`.
+- Swagger documentation for the API can be viewed by going to `localhost:3030/api/docs`.
 
 ## Deployment
 
